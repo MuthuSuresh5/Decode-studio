@@ -1,0 +1,18 @@
+const moongoose = require('mongoose');
+const dotenv = require('dotenv');
+const path = require('path');
+
+dotenv.config({path: path.join(__dirname, '..', 'config', 'config.env')});
+
+const connectDatabase = () =>{
+    moongoose.connect(process.env.MONGODB_URI, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+    }).then(con => {
+        console.log(`MongoDB Database connected with HOST: ${con.connection.host}`);
+    }).catch(err => {
+        console.error('Database connection error:', err);
+    });
+}
+
+module.exports = connectDatabase;

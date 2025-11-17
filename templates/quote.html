@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Get a Quote — Decode Studio</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="quote.css" />
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <div class="logo">Decode<span>Studio</span></div>
+
+    <nav class="menu">
+      <a href="index.html">Home</a>
+      <a href="about.html">About</a>
+      <a href="services.html">Services</a>
+      <a href="reviews.html">Reviews</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+
+  <div class="nav-right">
+    <a class="quote-btn" href="quote.html">Get a Quote</a>
+
+    <!-- LOGIN TEXT BUTTON -->
+    <a class="login-btn" href="login.html">Login</a>
+</div>
+
+  </header>
+
+  <!-- HERO -->
+  <section class="quote-hero">
+    <div class="hero-inner container">
+      <h1>Get a Quote</h1>
+      <p>Tell us about your project and we'll get back to you with a custom quote</p>
+    </div>
+  </section>
+
+  <!-- QUOTE FORM -->
+  <section class="quote-section container">
+    <form class="quote-form" id="quoteForm" onsubmit="return handleSubmit(event)">
+      <div class="card">
+        <h2>Project Details</h2>
+
+        <label class="full">
+          Full Name *
+          <input type="text" name="name" placeholder="John Doe" required>
+        </label>
+
+        <div class="row two-cols">
+          <label>
+            Email *
+            <input type="email" name="email" placeholder="john@example.com" required>
+          </label>
+
+          <label>
+            Phone Number *
+            <input type="text" name="phone" placeholder="+91 XXXXX XXXXX" required>
+          </label>
+        </div>
+
+        <label>
+          Service Required *
+          <select name="service" required>
+            <option value="">Select a service</option>
+            <option>Web Development</option>
+            <option>Web Design</option>
+            <option>Branding</option>
+            <option>Digital Marketing</option>
+            <option>Video Editing</option>
+            <option>Maintenance & Support</option>
+          </select>
+        </label>
+
+        <label>
+          Project Description *
+          <textarea name="description" rows="6" placeholder="Tell us about your project requirements, goals, and any specific features you need..." required></textarea>
+        </label>
+
+        <div class="row two-cols">
+          <label>
+            Deadline *
+            <select name="deadline" required>
+              <option value="">Select deadline</option>
+              <option>1 - 2 weeks</option>
+              <option>1 month</option>
+              <option>2 - 3 months</option>
+              <option>Flexible</option>
+            </select>
+          </label>
+
+          <label>
+            Budget Range *
+            <select name="budget" required>
+              <option value="">Select budget</option>
+              <option>Under ₹15,000</option>
+              <option>₹15,000 - ₹50,000</option>
+              <option>₹50,000 - ₹1,50,000</option>
+              <option>₹1,50,000+</option>
+            </select>
+          </label>
+        </div>
+
+        <button type="submit" class="submit-btn">Submit Order</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- FOOTER (dark) -->
+  <footer class="site-footer dark">
+    <div class="container footer-grid">
+      <div class="col">
+        <h3 class="logo-footer">Decode<span>Studio</span></h3>
+        <p>We Decode Digital Problems Into Smart Solutions.</p>
+        <div class="socials">
+          <span></span> <span></span> <span></span> <span></span>
+        </div>
+      </div>
+
+      <div class="col">
+        <h4>Quick Links</h4>
+        <a href="index.html">Home</a>
+        <a href="about.html">About Us</a>
+        <a href="services.html">Services</a>
+        <a href="portfolio.html">Portfolio</a>
+      </div>
+
+      <div class="col">
+        <h4>Our Services</h4>
+        <a href="services.html">Web Development</a>
+        <a href="services.html">Web Design</a>
+        <a href="services.html">Branding</a>
+        <a href="services.html">Digital Marketing</a>
+        <a href="services.html">Video Editing</a>
+      </div>
+
+      <div class="col">
+        <h4>Contact Us</h4>
+        <p class="muted">✉️ hello@decodestudio.in</p>
+        <p class="muted">📞 +91 XXX XXX XXXX</p>
+        <p class="muted">📍 Your City, Your State, India</p>
+      </div>
+    </div>
+
+    <div class="footer-bottom">© <span id="year"></span> Decode Studio. All rights reserved.</div>
+  </footer>
+
+  <script>
+    // footer year
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // demo submit handler: show alert and reset
+    function handleSubmit(e){
+      e.preventDefault();
+      const f = e.target;
+      const name = f.name.value || 'Guest';
+      alert('Thanks, ' + name + '! Your quote request has been received. We will contact you soon.');
+      f.reset();
+      return false;
+    }
+  </script>
+</body>
+</html>

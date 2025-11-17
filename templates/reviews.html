@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Client Reviews — Decode Studio</title>
+
+  <!-- Google fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <!-- Page CSS (separate file) -->
+  <link rel="stylesheet" href="reviews.css" />
+</head>
+<body>
+
+  <!-- NAVBAR (same structure as Services page) -->
+ <header class="navbar">
+    <div class="logo">Decode<span>Studio</span></div>
+
+    <nav class="menu">
+        <a class="active" href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="services.html">Services</a>
+        <a href="reviews.html">Reviews</a>
+        <a href="contact.html">Contact</a>
+    </nav>
+
+    <div class="nav-right">
+    <a class="quote-btn" href="quote.html">Get a Quote</a>
+
+    <!-- LOGIN TEXT BUTTON -->
+    <a class="login-btn" href="login.html">Login</a>
+</div>
+
+  </header>
+
+  <!-- HERO -->
+  <section class="reviews-hero">
+    <div class="hero-inner">
+      <h1>Client Reviews</h1>
+      <p>See what our clients say about working with us</p>
+    </div>
+  </section>
+
+  <!-- REVIEWS GRID -->
+  <section class="reviews-section">
+    <div class="grid-reviews">
+
+      <article class="review-card">
+        <div class="stars">★★★★★</div>
+        <p class="review-text">
+          "Decode Studio transformed our online presence. The team is highly professional, creative, and delivered beyond our expectations. Our website looks amazing and has helped us attract more clients!"
+        </p>
+        <div class="review-author">
+          <div>
+            <strong>Rajesh Kumar</strong><br />
+            <span class="muted">TechStart Solutions</span>
+          </div>
+          <div class="muted small">2 weeks ago</div>
+        </div>
+      </article>
+
+      <article class="review-card">
+        <div class="stars">★★★★★</div>
+        <p class="review-text">
+          "Best web design agency I've worked with! They understood our vision and created a beautiful e-commerce site. Sales increased by 40% since launch. Highly recommended!"
+        </p>
+        <div class="review-author">
+          <div>
+            <strong>Priya Sharma</strong><br />
+            <span class="muted">Bloom Boutique</span>
+          </div>
+          <div class="muted small">1 month ago</div>
+        </div>
+      </article>
+
+      <article class="review-card">
+        <div class="stars">★★★★★</div>
+        <p class="review-text">
+          "Amazing work on our website and branding. The team is responsive, talented, and very professional. They delivered on time and within budget. Will work with them again!"
+        </p>
+        <div class="review-author">
+          <div>
+            <strong>Amit Patel</strong><br />
+            <span class="muted">FitLife Gym</span>
+          </div>
+          <div class="muted small">1 month ago</div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- WRITE A REVIEW FORM -->
+  <section class="write-review">
+    <div class="container form-wrap">
+      <h2>Write a Review</h2>
+      <p class="subtitle">Share your experience working with Decode Studio</p>
+
+      <form id="reviewForm" class="review-form" onsubmit="return submitReview(event)">
+        <div class="row">
+          <label>
+            Name *
+            <input type="text" id="name" placeholder="Your name" required>
+          </label>
+        </div>
+
+        <div class="row two-cols">
+          <label>
+            Company (Optional)
+            <input type="text" id="company" placeholder="Your company">
+          </label>
+
+          <label>
+            Email *
+            <input type="email" id="email" placeholder="your@email.com" required>
+          </label>
+        </div>
+
+        <div class="row">
+          <label>Rating *</label>
+          <div class="rating" aria-label="Star rating">
+            <input type="radio" name="rating" id="r5" value="5"><label for="r5" title="5 stars">★</label>
+            <input type="radio" name="rating" id="r4" value="4"><label for="r4" title="4 stars">★</label>
+            <input type="radio" name="rating" id="r3" value="3"><label for="r3" title="3 stars">★</label>
+            <input type="radio" name="rating" id="r2" value="2"><label for="r2" title="2 stars">★</label>
+            <input type="radio" name="rating" id="r1" value="1" checked><label for="r1" title="1 star">★</label>
+          </div>
+        </div>
+
+        <div class="row">
+          <label>
+            Your Review *
+            <textarea id="review" rows="6" placeholder="Share your experience with Decode Studio..." required></textarea>
+          </label>
+        </div>
+
+        <div class="row">
+          <button type="submit" class="submit-btn">Submit Review</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- FOOTER (keeps same look as other pages) -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div class="col">
+        <h3 class="logo-footer">Decode<span>Studio</span></h3>
+        <p class="muted">We Decode Digital Problems Into Smart Solutions.</p>
+      </div>
+
+      <div class="col">
+        <h4>Quick Links</h4>
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="services.html">Services</a>
+      </div>
+
+      <div class="col">
+        <h4>Contact</h4>
+        <p class="muted">hello@decodestudio.in</p>
+        <p class="muted">+91 98765 43210</p>
+        <p class="muted">Your City, Your State, India</p>
+      </div>
+    </div>
+
+    <div class="footer-bottom">© <span id="year2"></span> Decode Studio. All rights reserved.</div>
+  </footer>
+
+  <script>
+    // footer year
+    document.getElementById('year2').textContent = new Date().getFullYear();
+
+    // Demo form submit (no backend) — shows alert and resets form
+    function submitReview(e) {
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const rating = document.querySelector('input[name="rating"]:checked')?.value || 5;
+
+      alert('Thank you, ' + (name || 'Guest') + '! Your review (⭐' + rating + ') has been received.');
+      document.getElementById('reviewForm').reset();
+      return false;
+    }
+  </script>
+</body>
+</html>

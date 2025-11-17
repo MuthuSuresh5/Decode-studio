@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Login — Decode Studio</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="login.css" />
+</head>
+<body>
+
+  <!-- NAVBAR (keeps same structure as your other pages) -->
+  <header class="navbar">
+    <div class="logo">Decode<span>Studio</span></div>
+
+    <nav class="menu">
+      <a href="index.html">Home</a>
+      <a href="about.html">About</a>
+      <a href="services.html">Services</a>
+      <a href="portfolio.html">Portfolio</a>
+      <a href="reviews.html">Reviews</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+
+    <div class="nav-right">
+      <a class="quote-btn" href="quote.html">Get a Quote</a>
+      <a class="login-btn" href="login.html">Login</a>
+    </div>
+  </header>
+
+  <!-- Page hero spacing (keeps layout consistent) -->
+  <section class="page-hero"></section>
+
+  <!-- Login card -->
+  <main class="main-wrap">
+    <div class="auth-card" role="region" aria-labelledby="auth-title">
+      <h1 id="auth-title">Customer Portal</h1>
+
+      <!-- tabs -->
+      <div class="tabs" role="tablist" aria-label="Auth tabs">
+        <button class="tab active" data-tab="login" role="tab" aria-selected="true">Login</button>
+        <button class="tab" data-tab="signup" role="tab" aria-selected="false">Sign Up</button>
+      </div>
+
+      <!-- Login form -->
+      <form id="loginForm" class="form active" data-form="login" onsubmit="submitLogin(event)" novalidate>
+        <label>Email
+          <input type="email" name="email" placeholder="you@example.com" required>
+        </label>
+
+        <label>Password
+          <input type="password" name="password" placeholder="Password" required>
+        </label>
+
+        <div class="form-row between">
+          <button class="primary" type="submit">Login</button>
+        </div>
+
+        <div class="helper-row">
+          <a href="#" id="forgotLink" class="muted link padding">Forgot password?</a>
+        </div>
+      </form>
+
+      <!-- Sign up form -->
+      <form id="signupForm" class="form" data-form="signup" onsubmit="submitSignUp(event)" novalidate>
+        <label>Full name
+          <input type="text" name="fullname" placeholder="Your full name" required>
+        </label>
+
+        <label>Email
+          <input type="email" name="email" placeholder="you@example.com" required>
+        </label>
+
+        <label>Password
+          <input type="password" name="password" placeholder="Create a password" required>
+        </label>
+
+        <button class="primary" type="submit">Sign Up</button>
+
+        <div class="helper">
+          <span class="muted">By signing up you agree to our terms.</span>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <!-- Forgot password modal -->
+  <div id="fpModal" class="modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="fpTitle">
+    <div class="modal-overlay" id="fpOverlay" tabindex="-1"></div>
+    <div class="modal-panel" role="document">
+      <button class="modal-close" id="fpClose" aria-label="Close">&times;</button>
+      <h2 id="fpTitle">Reset your password</h2>
+      <p class="muted">Enter the email address associated with your account. We’ll send a link to reset your password.</p>
+
+      <form id="fpForm" class="fp-form" onsubmit="submitForgot(event)" novalidate>
+        <label>Email
+          <input type="email" id="fpEmail" name="email" placeholder="you@example.com" required>
+        </label>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-ghost" id="fpCancel">Cancel</button>
+          <button type="submit" class="primary">Send reset link</button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>© <span id="year"></span> DecodeStudio — All rights reserved.</p>
+    </div>
+  </footer>
+
+<script>
+  // footer year
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // Tab switching
+  document.querySelectorAll('.tabs .tab').forEach(btn=>{
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tabs .tab').forEach(b=>{
+        b.classList.remove('active');
+        b.setAttribute('aria-selected','false');
+      });
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected','true');
+
+      const tab = btn.dataset.tab;
+      document.querySelectorAll('.form').forEach(f => {
+        f.classList.toggle('active', f.dataset.form === tab);
+      });
+    });
+  });
+
+  // Demo submit handlers (no backend)
+  function submitLogin(e){
+    e.preventDefault();
+    const email = e.target.email.value;
+    alert('Logged in as: ' + email + '\n(This is a demo — add backend POST.)');
+    e.target.reset();
+  }
+  function submitSignUp(e){
+    e.preventDefault();
+    const name = e.target.fullname.value;
+    alert('Thanks, ' + name + '! Signup demo — implement a backend to create accounts.');
+    e.target.reset();
+  }
+
+  /* ----------------------
+     Forgot password modal
+     ---------------------- */
+  const fpModal = document.getElementById('fpModal');
+  const fpOverlay = document.getElementById('fpOverlay');
+  const fpClose = document.getElementById('fpClose');
+  const fpCancel = document.getElementById('fpCancel');
+  const forgotLink = document.getElementById('forgotLink');
+  const fpForm = document.getElementById('fpForm');
+
+  function openModal() {
+    fpModal.classList.add('open');
+    fpModal.setAttribute('aria-hidden', 'false');
+    // focus email input when open
+    setTimeout(()=> document.getElementById('fpEmail').focus(), 50);
+    // trap focus if needed (simple)
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal() {
+    fpModal.classList.remove('open');
+    fpModal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    forgotLink.focus();
+  }
+
+  forgotLink.addEventListener('click',(ev)=>{
+    ev.preventDefault();
+    openModal();
+  });
+
+  fpOverlay.addEventListener('click', closeModal);
+  fpClose.addEventListener('click', closeModal);
+  fpCancel.addEventListener('click', closeModal);
+
+  // keyboard escape to close
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && fpModal.classList.contains('open')) closeModal();
+  });
+
+  // handle forgot form submit
+  function submitForgot(e){
+    e.preventDefault();
+    const email = document.getElementById('fpEmail').value.trim();
+    if (!email) {
+      alert('Please enter your email address.');
+      return;
+    }
+    // demo behavior: show confirmation — replace with POST to your server
+    alert('If an account exists for ' + email + ', you will receive a password reset link shortly.');
+    fpForm.reset();
+    closeModal();
+  }
+</script>
+
+</body>
+</html>
