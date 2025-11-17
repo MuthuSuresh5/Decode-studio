@@ -10,7 +10,7 @@ const ContactRoutes = require('./routes/contact');
 const AdminRoutes = require('./routes/users');
 
 app.use(cors({
-    origin: ['http://localhost:3000', 'http://localhost:5173'],
+    origin: ['http://localhost:3000', 'http://localhost:5173', 'https://decode-studio.vercel.app'],
     credentials: true
 }));
 app.use(express.json());
