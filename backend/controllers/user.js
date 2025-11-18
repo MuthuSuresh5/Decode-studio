@@ -6,6 +6,23 @@ exports.RegisterUser = async(req,res) => {
     try {
         const {name, email, password} = req.body;
 
+        // Validate required fields
+        if (!name || !email || !password) {
+            return res.status(400).json({
+                success: false,
+                message: 'Please provide name, email, and password'
+            });
+        }
+
+        // Check if user already exists
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({
+                success: false,
+                message: 'User already exists with this email'
+            });
+        }
+
         const user = await User.create({
             name,
             email,
@@ -19,13 +36,30 @@ exports.RegisterUser = async(req,res) => {
             token,
             user
         });
-
-
         
     } catch (error) {
+        console.error('Registration error:', error);
+        
+        // Handle validation errors
+        if (error.name === 'ValidationError') {
+            const message = Object.values(error.errors).map(val => val.message).join(', ');
+            return res.status(400).json({
+                success: false,
+                message
+            });
+        }
+        
+        // Handle duplicate key error
+        if (error.code === 11000) {
+            return res.status(400).json({
+                success: false,
+                message: 'User already exists with this email'
+            });
+        }
+        
         res.status(500).json({
             success: false,
-            message: error.message
+            message: 'Server error during registration'
         });
     }
 }
