@@ -32,6 +32,21 @@ app.get('/api/test', (req, res) => {
     res.json({ success: true, message: 'Server is working', timestamp: new Date() });
 });
 
+// Test user creation
+app.post('/api/test-user', async (req, res) => {
+    try {
+        const User = require('./models/UserModel');
+        const user = await User.create({
+            name: 'Test User',
+            email: `test${Date.now()}@example.com`,
+            password: 'password123'
+        });
+        res.json({ success: true, userId: user._id, message: 'User created' });
+    } catch (error) {
+        res.status(400).json({ success: false, error: error.message, code: error.code });
+    }
+});
+
 // Routes
 app.use('/api/auth', UserRoutes);
 app.use('/api/v1', serviceRoutes);
