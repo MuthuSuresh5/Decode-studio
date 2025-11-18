@@ -153,14 +153,16 @@ const OrderForm = () => {
                 </select>
               </div>
               <div className="form-group">
-                <label>Budget Range *</label>
-                <select name="budget" value={formData.budget} onChange={handleChange} required>
-                  <option value="">Select budget</option>
-                  <option value="Under ₹15,000">Under ₹15,000</option>
-                  <option value="₹15,000 - ₹50,000">₹15,000 - ₹50,000</option>
-                  <option value="₹50,000 - ₹1,50,000">₹50,000 - ₹1,50,000</option>
-                  <option value="₹1,50,000+">₹1,50,000+</option>
-                </select>
+                <label>Budget *</label>
+                <input
+                  type="text"
+                  name="budget"
+                  value={formData.budget}
+                  onChange={handleChange}
+                  placeholder="Enter your budget (e.g., ₹50,000 or 50000)"
+                  required
+                />
+                <small style={{color: '#666', fontSize: '12px'}}>You can enter amount with or without ₹ symbol</small>
               </div>
             </div>
 

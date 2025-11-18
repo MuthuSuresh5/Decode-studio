@@ -43,8 +43,9 @@ const Login = () => {
     const name = e.target.fullname.value
     const email = e.target.email.value
     const password = e.target.password.value
+    const budget = e.target.budget.value
     
-    const result = await register(name, email, password)
+    const result = await register(name, email, password, budget)
     
     if (result.success) {
       // New users are always regular users, redirect to user dashboard
@@ -130,6 +131,10 @@ const Login = () => {
               <label>
                 Password
                 <input type="password" name="password" placeholder="Create a password" required />
+              </label>
+              <label>
+                Budget (Optional)
+                <input type="text" name="budget" placeholder="Your budget for services (e.g., 50000)" />
               </label>
               <button className="primary" type="submit" disabled={loading}>
                 {loading ? 'Creating account...' : 'Sign Up'}

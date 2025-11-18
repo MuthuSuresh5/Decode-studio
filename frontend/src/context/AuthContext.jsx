@@ -54,14 +54,14 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
-  const register = async (name, email, password) => {
+  const register = async (name, email, password, budget) => {
     try {
       const response = await fetch('https://decode-studio.onrender.com/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ name, email, password, budget }),
       })
 
       const data = await response.json()
