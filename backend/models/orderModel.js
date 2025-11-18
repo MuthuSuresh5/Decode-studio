@@ -8,14 +8,7 @@ const orderSchema = new mongoose.Schema({
     },
     service:{
         type:String,
-        required: true,
-        enum:{
-            values:[
-                "Web Development",
-                "Video Editing",
-                "Logo Making"
-            ]
-        }    
+        required: true
     },
 
     description:{
