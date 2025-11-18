@@ -4,81 +4,53 @@ const bcrypt = require('bcrypt');
 
 exports.RegisterUser = async(req, res) => {
     try {
-        let { name, email, password } = req.body;
+        const { name, email, password } = req.body;
 
-        // Clean and validate input
+        // Basic validation
         if (!name || !email || !password) {
             return res.status(400).json({
                 success: false,
-                message: 'Please provide name, email, and password'
+                message: 'Missing required fields'
             });
         }
-
-        // Normalize email (trim and lowercase)
-        email = email.trim().toLowerCase();
-        name = name.trim();
 
         if (password.length < 6) {
             return res.status(400).json({
                 success: false,
-                message: 'Password must be at least 6 characters long'
+                message: 'Password too short'
             });
         }
 
-        // Check if user exists (case-insensitive)
-        const existingUser = await User.findOne({ 
-            email: { $regex: new RegExp(`^${email}$`, 'i') } 
+        // Create user directly (let MongoDB handle duplicates)
+        const user = await User.create({
+            name: name.trim(),
+            email: email.trim().toLowerCase(),
+            password
         });
-        
-        if (existingUser) {
-            return res.status(400).json({
-                success: false,
-                message: 'User already exists with this email'
-            });
-        }
-
-        // Create user
-        const user = await User.create({ name, email, password });
         const token = user.getJwtToken();
-
-        // Remove password from response
-        const userResponse = {
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            createdAt: user.createdAt
-        };
 
         res.status(201).json({
             success: true,
             token,
-            user: userResponse
+            user: {
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role
+            }
         });
         
     } catch (error) {
-        console.error('Registration error:', error);
-        
-        // Handle duplicate key error (MongoDB)
         if (error.code === 11000) {
             return res.status(400).json({
                 success: false,
-                message: 'Email already registered. Try logging in instead.'
+                message: 'Email already exists'
             });
         }
         
-        // Handle validation errors
-        if (error.name === 'ValidationError') {
-            const message = Object.values(error.errors).map(val => val.message).join(', ');
-            return res.status(400).json({
-                success: false,
-                message
-            });
-        }
-        
-        res.status(500).json({
+        res.status(400).json({
             success: false,
-            message: 'Registration failed. Please try again.'
+            message: error.message || 'Registration failed'
         });
     }
 }
