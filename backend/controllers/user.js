@@ -8,7 +8,7 @@ exports.RegisterUser = async(req, res) => {
     
     try {
         const { name, email, password } = req.body;
-        console.log('Extracted:', { name, email, password: password ? 'PROVIDED' : 'MISSING' });
+        console.log('Extracted:', { name, email, password: password ? `${password.length} chars` : 'MISSING' });
 
         if (!name || !email || !password) {
             console.log('VALIDATION FAILED: Missing fields');
@@ -18,12 +18,25 @@ exports.RegisterUser = async(req, res) => {
             });
         }
 
-        console.log('Creating user...');
-        const user = await User.create({ name, email, password });
-        console.log('User created:', user._id);
+        // Additional validation
+        if (password.length < 6) {
+            console.log('VALIDATION FAILED: Password too short');
+            return res.status(400).json({
+                success: false,
+                message: 'Password must be at least 6 characters'
+            });
+        }
+
+        console.log('Creating user with validated data...');
+        const user = await User.create({ 
+            name: name.trim(), 
+            email: email.trim().toLowerCase(), 
+            password: String(password)
+        });
+        console.log('User created successfully:', user._id);
         
         const token = user.getJwtToken();
-        console.log('Token generated');
+        console.log('Token generated successfully');
 
         res.status(201).json({
             success: true,
@@ -33,9 +46,9 @@ exports.RegisterUser = async(req, res) => {
         
     } catch (error) {
         console.log('=== REGISTRATION ERROR ===');
-        console.log('Error:', error.message);
+        console.log('Error message:', error.message);
         console.log('Error code:', error.code);
-        console.log('Full error:', error);
+        console.log('Error name:', error.name);
         
         res.status(400).json({
             success: false,
