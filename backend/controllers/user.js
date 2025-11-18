@@ -27,16 +27,16 @@ exports.RegisterUser = async(req,res) => {
             });
         }
 
-        // Check if user already exists
-        console.log('Checking for existing user with email:', email);
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            console.log('User already exists');
-            return res.status(400).json({
-                success: false,
-                message: 'User already exists with this email'
-            });
-        }
+        // Temporarily skip duplicate check for debugging
+        console.log('Skipping duplicate check for debugging...');
+        // const existingUser = await User.findOne({ email });
+        // if (existingUser) {
+        //     console.log('User already exists');
+        //     return res.status(400).json({
+        //         success: false,
+        //         message: 'User already exists with this email'
+        //     });
+        // }
 
         console.log('Creating new user...');
         const user = await User.create({
