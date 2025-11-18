@@ -43,14 +43,6 @@ app.use((err, req, res, next) => {
     });
 });
 
-// 404 handler
-app.all('*', (req, res) => {
-    res.status(404).json({
-        success: false,
-        message: 'Route not found'
-    });
-});
-
 // Routes
 app.use('/api/auth', UserRoutes);
 app.use('/api/v1', serviceRoutes);
