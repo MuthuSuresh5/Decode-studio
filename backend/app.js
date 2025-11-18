@@ -13,12 +13,24 @@ const AdminRoutes = require('./routes/users');
 
 // Middleware
 app.use(cors({
-    origin: ['http://localhost:3000', 'http://localhost:5173', 'https://decode-studio-xzq1.vercel.app'],
-    credentials: true
+    origin: true,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+// Health check
+app.get('/health', (req, res) => {
+    res.json({ status: 'OK', timestamp: new Date() });
+});
+
+// Test route
+app.get('/api/test', (req, res) => {
+    res.json({ success: true, message: 'Server is working', timestamp: new Date() });
+});
 
 // Routes
 app.use('/api/auth', UserRoutes);

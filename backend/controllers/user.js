@@ -4,64 +4,28 @@ const bcrypt = require('bcrypt');
 
 exports.RegisterUser = async(req, res) => {
     try {
-        console.log('Registration request received:', req.body);
         const { name, email, password } = req.body;
 
-        // Basic validation
         if (!name || !email || !password) {
-            console.log('Missing fields:', { name: !!name, email: !!email, password: !!password });
             return res.status(400).json({
                 success: false,
-                message: 'Missing required fields'
+                message: 'All fields required'
             });
         }
 
-        if (password.length < 6) {
-            console.log('Password too short:', password.length);
-            return res.status(400).json({
-                success: false,
-                message: 'Password too short'
-            });
-        }
-
-        console.log('Creating user with:', { name: name.trim(), email: email.trim().toLowerCase() });
-        
-        // Create user directly (let MongoDB handle duplicates)
-        const user = await User.create({
-            name: name.trim(),
-            email: email.trim().toLowerCase(),
-            password
-        });
-        
-        console.log('User created successfully:', user._id);
+        const user = await User.create({ name, email, password });
         const token = user.getJwtToken();
 
         res.status(201).json({
             success: true,
             token,
-            user: {
-                _id: user._id,
-                name: user.name,
-                email: user.email,
-                role: user.role
-            }
+            user: { _id: user._id, name: user.name, email: user.email, role: user.role }
         });
         
     } catch (error) {
-        console.error('Registration error:', error);
-        console.error('Error code:', error.code);
-        console.error('Error message:', error.message);
-        
-        if (error.code === 11000) {
-            return res.status(400).json({
-                success: false,
-                message: 'Email already exists'
-            });
-        }
-        
         res.status(400).json({
             success: false,
-            message: error.message || 'Registration failed'
+            message: error.code === 11000 ? 'Email already exists' : 'Registration failed'
         });
     }
 }
