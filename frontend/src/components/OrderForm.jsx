@@ -30,7 +30,7 @@ const OrderForm = () => {
 
   const fetchService = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/v1/service/${serviceId}`)
+      const response = await fetch(`https://decode-studio.onrender.com/api/v1/service/${serviceId}`)
       const data = await response.json()
       if (data.success) {
         setService(data.service)
@@ -53,7 +53,7 @@ const OrderForm = () => {
 
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:5000/api/v1/order/new', {
+      const response = await fetch('https://decode-studio.onrender.com/api/v1/order/new', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

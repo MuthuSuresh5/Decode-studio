@@ -20,7 +20,7 @@ const Dashboard = ({ sidebarOpen, setSidebarOpen }) => {
   const fetchOrders = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:5000/api/v1/myorders', {
+      const response = await fetch('https://decode-studio.onrender.com/api/v1/myorders', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -38,7 +38,7 @@ const Dashboard = ({ sidebarOpen, setSidebarOpen }) => {
 
   const fetchReviews = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/v1/reviews')
+      const response = await fetch('https://decode-studio.onrender.com/api/v1/reviews')
       const data = await response.json()
       if (data.success) {
         // Filter reviews to show only current user's reviews

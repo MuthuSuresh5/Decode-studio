@@ -15,7 +15,7 @@ const ServicesPage = () => {
 
   const fetchServices = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/v1/services')
+      const response = await fetch('https://decode-studio.onrender.com/api/v1/services')
       const data = await response.json()
       
       if (data.success) {

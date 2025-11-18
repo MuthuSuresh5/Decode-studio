@@ -53,7 +53,7 @@ const AdminDashboard = ({ sidebarOpen, setSidebarOpen }) => {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/admin/users', {
+      const response = await fetch('https://decode-studio.onrender.com/api/admin/users', {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       })
       const data = await response.json()
@@ -65,7 +65,7 @@ const AdminDashboard = ({ sidebarOpen, setSidebarOpen }) => {
 
   const fetchOrders = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/v1/admin/orders', {
+      const response = await fetch('https://decode-studio.onrender.com/api/v1/admin/orders', {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       })
       const data = await response.json()
@@ -77,7 +77,7 @@ const AdminDashboard = ({ sidebarOpen, setSidebarOpen }) => {
 
   const fetchReviews = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/v1/reviews')
+      const response = await fetch('https://decode-studio.onrender.com/api/v1/reviews')
       const data = await response.json()
       if (data.success) setReviews(data.reviews)
     } catch (error) {
@@ -87,7 +87,7 @@ const AdminDashboard = ({ sidebarOpen, setSidebarOpen }) => {
 
   const fetchServices = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/v1/services')
+      const response = await fetch('https://decode-studio.onrender.com/api/v1/services')
       const data = await response.json()
       if (data.success) setServices(data.services)
     } catch (error) {
@@ -97,7 +97,7 @@ const AdminDashboard = ({ sidebarOpen, setSidebarOpen }) => {
 
   const fetchMessages = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/admin/contacts', {
+      const response = await fetch('https://decode-studio.onrender.com/api/admin/contacts', {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       })
       const data = await response.json()
@@ -143,9 +143,9 @@ const AdminDashboard = ({ sidebarOpen, setSidebarOpen }) => {
     
     try {
       const endpoints = {
-        user: editItem ? `http://localhost:5000/api/admin/user/${editItem._id}` : 'http://localhost:5000/api/admin/user',
-        order: editItem ? `http://localhost:5000/api/v1/admin/order/${editItem._id}` : 'http://localhost:5000/api/v1/order/new',
-        service: editItem ? `http://localhost:5000/api/v1/service/${editItem._id}` : 'http://localhost:5000/api/v1/service/new'
+        user: editItem ? `https://decode-studio.onrender.com/api/admin/user/${editItem._id}` : 'https://decode-studio.onrender.com/api/admin/user',
+        order: editItem ? `https://decode-studio.onrender.com/api/v1/admin/order/${editItem._id}` : 'https://decode-studio.onrender.com/api/v1/order/new',
+        service: editItem ? `https://decode-studio.onrender.com/api/v1/service/${editItem._id}` : 'https://decode-studio.onrender.com/api/v1/service/new'
       }
       
       const method = editItem ? 'PUT' : 'POST'
@@ -179,11 +179,11 @@ const AdminDashboard = ({ sidebarOpen, setSidebarOpen }) => {
     
     try {
       const endpoints = {
-        user: `http://localhost:5000/api/admin/user/${id}`,
-        order: `http://localhost:5000/api/v1/admin/order/${id}`,
-        review: `http://localhost:5000/api/v1/reviews/${id}`,
-        service: `http://localhost:5000/api/v1/service/${id}`,
-        message: `http://localhost:5000/api/admin/contact/${id}`
+        user: `https://decode-studio.onrender.com/api/admin/user/${id}`,
+        order: `https://decode-studio.onrender.com/api/v1/admin/order/${id}`,
+        review: `https://decode-studio.onrender.com/api/v1/reviews/${id}`,
+        service: `https://decode-studio.onrender.com/api/v1/service/${id}`,
+        message: `https://decode-studio.onrender.com/api/admin/contact/${id}`
       }
       
       console.log('Deleting', type, 'with endpoint:', endpoints[type])
@@ -321,7 +321,7 @@ const AdminDashboard = ({ sidebarOpen, setSidebarOpen }) => {
                   className="admin-add-btn" 
                   onClick={async () => {
                     try {
-                      const response = await fetch(`http://localhost:5000/api/admin/make-admin/${user._id}`, {
+                      const response = await fetch(`https://decode-studio.onrender.com/api/admin/make-admin/${user._id}`, {
                         method: 'PUT',
                         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
                       })
