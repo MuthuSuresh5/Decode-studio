@@ -24,6 +24,10 @@ const userModel = new mongoose.Schema({
         type:String,
         default:'user'
     },
+    budget:{
+        type:Number,
+        default:null
+    },
     resetPasswordToken:{
         type:String
     },
