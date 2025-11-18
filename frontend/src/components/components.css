@@ -3099,6 +3099,11 @@ html {
   color: #d32f2f;
 }
 
+.status-badge.limitreached {
+  background: #ffebee;
+  color: #d32f2f;
+}
+
 .comment-cell {
   max-width: 200px;
   overflow: hidden;

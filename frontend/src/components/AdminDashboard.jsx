@@ -572,7 +572,7 @@ const AdminDashboard = ({ sidebarOpen, setSidebarOpen }) => {
                     <th>Description</th>
                     <th>Price Range</th>
                     <th>Status</th>
-                    <th>Features</th>
+                    <th>Orders/Limit</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -587,8 +587,19 @@ const AdminDashboard = ({ sidebarOpen, setSidebarOpen }) => {
                           'Contact for pricing'
                         }
                       </td>
-                      <td><span className={`status-badge ${service.status}`}>{service.status}</span></td>
-                      <td>{service.features?.length || 0} features</td>
+                      <td>
+                        <span className={`status-badge ${service.status}`}>{service.status}</span>
+                        {service.limit && !service.isAvailable && (
+                          <span className="status-badge limitreached" style={{marginLeft: '5px'}}>Limit Reached</span>
+                        )}
+                      </td>
+                      <td>
+                        {service.orderCount || 0}
+                        {service.limit ? `/${service.limit}` : '/∞'}
+                        {service.limit && !service.isAvailable && (
+                          <span style={{color: '#dc2626', fontSize: '12px', display: 'block'}}>Limit reached</span>
+                        )}
+                      </td>
                       <td>
                         <div className="action-buttons">
                           <button className="edit-btn" onClick={() => openModal('service', service)}>Edit</button>
@@ -790,12 +801,25 @@ const AdminDashboard = ({ sidebarOpen, setSidebarOpen }) => {
                       <input type="number" name="priceTo" defaultValue={editItem?.price?.[0]?.to || ''} required />
                     </div>
                   </div>
-                  <div className="form-group">
-                    <label>Status</label>
-                    <select name="status" defaultValue={editItem?.status || 'active'}>
-                      <option value="active">Active</option>
-                      <option value="inactive">Inactive</option>
-                    </select>
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>Status</label>
+                      <select name="status" defaultValue={editItem?.status || 'active'}>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                      </select>
+                    </div>
+                    <div className="form-group">
+                      <label>Order Limit</label>
+                      <input 
+                        type="number" 
+                        name="limit" 
+                        min="0" 
+                        placeholder="Leave empty for unlimited"
+                        defaultValue={editItem?.limit || ''} 
+                      />
+                      <small>Maximum number of orders allowed</small>
+                    </div>
                   </div>
                 </form>
               )}

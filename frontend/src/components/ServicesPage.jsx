@@ -89,12 +89,24 @@ const ServicesPage = () => {
                 ))}
               </ul>
               <div className="price">Starting from <span>{formatPrice(service.price)}</span></div>
-              {isAuthenticated ? (
+              {service.limit && !service.isAvailable ? (
+                <button className="book-btn" disabled style={{background: '#6b7280', cursor: 'not-allowed'}}>
+                  Currently Unavailable
+                </button>
+              ) : isAuthenticated ? (
                 <Link to={`/order?service=${service._id}`} className="book-btn">Book Service →</Link>
               ) : (
                 <Link to="/login" className="book-btn login-required">
                   Login to Book →
                 </Link>
+              )}
+              {service.limit && (
+                <div style={{marginTop: '10px', fontSize: '12px', color: '#6b7280', textAlign: 'center'}}>
+                  {service.isAvailable ? 
+                    `${service.orderCount || 0}/${service.limit} slots filled` : 
+                    'All slots filled'
+                  }
+                </div>
               )}
             </div>
           ))
