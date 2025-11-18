@@ -1336,9 +1336,6 @@ html {
   .navbar .menu {
     display: none;
   }
-  .nav-right .login-btn {
-    display: none;
-  }
   .mvv-grid {
     flex-direction: column;
   }
