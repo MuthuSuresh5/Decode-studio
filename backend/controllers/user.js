@@ -27,10 +27,25 @@ exports.RegisterUser = async(req, res) => {
             });
         }
 
+        // Check if user exists before creating
+        const normalizedEmail = email.trim().toLowerCase();
+        console.log('Checking for existing user with email:', normalizedEmail);
+        
+        const existingUser = await User.findOne({ email: normalizedEmail });
+        console.log('Existing user found:', existingUser ? 'YES' : 'NO');
+        
+        if (existingUser) {
+            console.log('User already exists with ID:', existingUser._id);
+            return res.status(400).json({
+                success: false,
+                message: 'Email already exists'
+            });
+        }
+        
         console.log('Creating user with validated data...');
         const user = await User.create({ 
             name: name.trim(), 
-            email: email.trim().toLowerCase(), 
+            email: normalizedEmail, 
             password: String(password)
         });
         console.log('User created successfully:', user._id);

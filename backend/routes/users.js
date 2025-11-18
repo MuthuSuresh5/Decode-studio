@@ -90,10 +90,25 @@ router.post('/user', async (req, res) => {
             });
         }
         
+        // Check for existing user
+        const normalizedEmail = email.trim().toLowerCase();
+        console.log('Checking for existing user with email:', normalizedEmail);
+        
+        const existingUser = await User.findOne({ email: normalizedEmail });
+        console.log('Existing user found:', existingUser ? 'YES' : 'NO');
+        
+        if (existingUser) {
+            console.log('User already exists with ID:', existingUser._id);
+            return res.status(400).json({
+                success: false,
+                message: 'Email already exists'
+            });
+        }
+        
         console.log('Creating user with role:', role || 'user');
         const user = await User.create({
             name: name.trim(),
-            email: email.trim().toLowerCase(),
+            email: normalizedEmail,
             password: String(password),
             role: role || 'user'
         });
