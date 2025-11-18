@@ -3,18 +3,27 @@ const bcrypt = require('bcrypt');
 
 
 exports.RegisterUser = async(req, res) => {
+    console.log('=== REGISTRATION START ===');
+    console.log('Request body:', req.body);
+    
     try {
         const { name, email, password } = req.body;
+        console.log('Extracted:', { name, email, password: password ? 'PROVIDED' : 'MISSING' });
 
         if (!name || !email || !password) {
+            console.log('VALIDATION FAILED: Missing fields');
             return res.status(400).json({
                 success: false,
                 message: 'All fields required'
             });
         }
 
+        console.log('Creating user...');
         const user = await User.create({ name, email, password });
+        console.log('User created:', user._id);
+        
         const token = user.getJwtToken();
+        console.log('Token generated');
 
         res.status(201).json({
             success: true,
@@ -23,9 +32,14 @@ exports.RegisterUser = async(req, res) => {
         });
         
     } catch (error) {
+        console.log('=== REGISTRATION ERROR ===');
+        console.log('Error:', error.message);
+        console.log('Error code:', error.code);
+        console.log('Full error:', error);
+        
         res.status(400).json({
             success: false,
-            message: error.code === 11000 ? 'Email already exists' : 'Registration failed'
+            message: error.code === 11000 ? 'Email already exists' : error.message || 'Registration failed'
         });
     }
 }
