@@ -4,15 +4,19 @@ const bcrypt = require('bcrypt');
 
 exports.RegisterUser = async(req, res) => {
     try {
-        const { name, email, password } = req.body;
+        let { name, email, password } = req.body;
 
-        // Validate input
+        // Clean and validate input
         if (!name || !email || !password) {
             return res.status(400).json({
                 success: false,
                 message: 'Please provide name, email, and password'
             });
         }
+
+        // Normalize email (trim and lowercase)
+        email = email.trim().toLowerCase();
+        name = name.trim();
 
         if (password.length < 6) {
             return res.status(400).json({
@@ -21,14 +25,17 @@ exports.RegisterUser = async(req, res) => {
             });
         }
 
-        // Temporarily skip duplicate check
-        // const existingUser = await User.findOne({ email });
-        // if (existingUser) {
-        //     return res.status(400).json({
-        //         success: false,
-        //         message: 'User already exists with this email'
-        //     });
-        // }
+        // Check if user exists (case-insensitive)
+        const existingUser = await User.findOne({ 
+            email: { $regex: new RegExp(`^${email}$`, 'i') } 
+        });
+        
+        if (existingUser) {
+            return res.status(400).json({
+                success: false,
+                message: 'User already exists with this email'
+            });
+        }
 
         // Create user
         const user = await User.create({ name, email, password });
@@ -50,6 +57,8 @@ exports.RegisterUser = async(req, res) => {
         });
         
     } catch (error) {
+        console.error('Registration error:', error);
+        
         // Handle duplicate key error (MongoDB)
         if (error.code === 11000) {
             return res.status(400).json({
@@ -85,9 +94,12 @@ exports.LoginUser = async(req,res) => {
             });
         }
 
-        const passwordString = String(password);
-
-        const user = await User.findOne({email}).select('+password');
+        // Normalize email for login
+        email = email.trim().toLowerCase();
+        
+        const user = await User.findOne({
+            email: { $regex: new RegExp(`^${email}$`, 'i') }
+        }).select('+password');
 
         if(!user){
             return res.status(401).json({
