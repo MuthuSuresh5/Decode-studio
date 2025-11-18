@@ -4,33 +4,51 @@ const bcrypt = require('bcrypt');
 
 exports.RegisterUser = async(req,res) => {
     try {
+        console.log('Registration request body:', req.body);
         const {name, email, password} = req.body;
+
+        console.log('Extracted fields:', { name, email, password: password ? '***' : undefined });
 
         // Validate required fields
         if (!name || !email || !password) {
+            console.log('Missing required fields');
             return res.status(400).json({
                 success: false,
                 message: 'Please provide name, email, and password'
             });
         }
 
+        // Validate password length
+        if (password.length < 6) {
+            console.log('Password too short');
+            return res.status(400).json({
+                success: false,
+                message: 'Password must be at least 6 characters long'
+            });
+        }
+
         // Check if user already exists
+        console.log('Checking for existing user with email:', email);
         const existingUser = await User.findOne({ email });
         if (existingUser) {
+            console.log('User already exists');
             return res.status(400).json({
                 success: false,
                 message: 'User already exists with this email'
             });
         }
 
+        console.log('Creating new user...');
         const user = await User.create({
             name,
             email,
             password
         }); 
 
+        console.log('User created successfully, generating token...');
         const token = user.getJwtToken();
 
+        console.log('Registration successful');
         res.status(201).json({
             success: true,
             token,
@@ -39,10 +57,14 @@ exports.RegisterUser = async(req,res) => {
         
     } catch (error) {
         console.error('Registration error:', error);
+        console.error('Error name:', error.name);
+        console.error('Error code:', error.code);
+        console.error('Error message:', error.message);
         
         // Handle validation errors
         if (error.name === 'ValidationError') {
             const message = Object.values(error.errors).map(val => val.message).join(', ');
+            console.log('Validation error:', message);
             return res.status(400).json({
                 success: false,
                 message
@@ -51,6 +73,7 @@ exports.RegisterUser = async(req,res) => {
         
         // Handle duplicate key error
         if (error.code === 11000) {
+            console.log('Duplicate key error');
             return res.status(400).json({
                 success: false,
                 message: 'User already exists with this email'

@@ -8,6 +8,7 @@ const OrderRoutes = require('./routes/order');
 const ReviewRoutes = require('./routes/review');
 const ContactRoutes = require('./routes/contact');
 const AdminRoutes = require('./routes/users');
+const DebugRoutes = require('./routes/debug');
 
 app.use(cors({
     origin: true,
@@ -22,5 +23,6 @@ app.use('/api/v1', OrderRoutes);
 app.use('/api/v1', ReviewRoutes);
 app.use('/api/v1', ContactRoutes);
 app.use('/api/admin', AdminRoutes);
+app.use('/api/debug', DebugRoutes);
 
 module.exports = app;
