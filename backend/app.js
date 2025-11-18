@@ -13,7 +13,9 @@ const AdminRoutes = require('./routes/users');
 
 // Middleware
 app.use(cors({
-    origin: true,
+    origin: process.env.NODE_ENV === 'production' 
+        ? ['https://decode-studio-xzq1.vercel.app'] 
+        : ['http://localhost:3000', 'http://localhost:5173'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
@@ -24,99 +26,29 @@ app.use(cookieParser());
 
 // Health check
 app.get('/health', (req, res) => {
-    res.json({ status: 'OK', timestamp: new Date() });
+    res.json({ 
+        status: 'OK', 
+        timestamp: new Date(),
+        environment: process.env.NODE_ENV || 'development'
+    });
 });
 
-// Test route
-app.get('/api/test', (req, res) => {
-    res.json({ success: true, message: 'Server is working', timestamp: new Date() });
+// Global error handler
+app.use((err, req, res, next) => {
+    res.status(err.status || 500).json({
+        success: false,
+        message: process.env.NODE_ENV === 'production' 
+            ? 'Something went wrong!' 
+            : err.message
+    });
 });
 
-// Fix database indexes
-app.post('/api/fix-indexes', async (req, res) => {
-    try {
-        const User = require('./models/UserModel');
-        
-        // Drop the problematic apiKey index
-        await User.collection.dropIndex('apiKey_1');
-        
-        res.json({ success: true, message: 'Problematic index dropped' });
-    } catch (error) {
-        res.json({ success: false, error: error.message });
-    }
-});
-
-// Debug registration
-app.post('/api/debug-register', async (req, res) => {
-    console.log('=== DEBUG REGISTRATION ===');
-    console.log('Body:', req.body);
-    
-    try {
-        const User = require('./models/UserModel');
-        const { name, email, password } = req.body;
-        
-        console.log('Input validation...');
-        if (!name || !email || !password) {
-            return res.json({ step: 'validation', error: 'Missing fields', data: { name: !!name, email: !!email, password: !!password } });
-        }
-        
-        console.log('Checking existing user...');
-        const existing = await User.findOne({ email: email.toLowerCase() });
-        console.log('Existing user:', existing);
-        
-        if (existing) {
-            return res.json({ step: 'duplicate_check', error: 'User exists', existingUser: existing._id });
-        }
-        
-        console.log('Creating user...');
-        const user = await User.create({ name, email: email.toLowerCase(), password });
-        
-        res.json({ step: 'success', userId: user._id, message: 'User created' });
-    } catch (error) {
-        console.log('Debug error:', error);
-        res.json({ step: 'error', error: error.message, code: error.code, name: error.name });
-    }
-});
-
-// Test user creation
-app.post('/api/test-user', async (req, res) => {
-    try {
-        const User = require('./models/UserModel');
-        const testEmail = `test${Date.now()}@example.com`;
-        console.log('Creating test user with email:', testEmail);
-        
-        const user = await User.create({
-            name: 'Test User',
-            email: testEmail,
-            password: 'password123'
-        });
-        
-        console.log('Test user created:', user._id);
-        res.json({ success: true, userId: user._id, email: user.email, message: 'User created' });
-    } catch (error) {
-        console.log('Test user creation error:', error);
-        res.status(400).json({ success: false, error: error.message, code: error.code });
-    }
-});
-
-// Force create user (bypass all checks)
-app.post('/api/force-user', async (req, res) => {
-    try {
-        const User = require('./models/UserModel');
-        const { name, email, password } = req.body;
-        
-        console.log('Force creating user:', { name, email });
-        
-        // Drop the unique index temporarily and recreate user
-        const user = new User({ name, email, password });
-        await user.save();
-        
-        console.log('Force user created:', user._id);
-        res.json({ success: true, userId: user._id, message: 'User force created' });
-    } catch (error) {
-        console.log('Force user creation error:', error);
-        res.status(400).json({ success: false, error: error.message, code: error.code });
-    }
+// 404 handler
+app.use('*', (req, res) => {
+    res.status(404).json({
+        success: false,
+        message: 'Route not found'
+    });
 });
 
 // Routes

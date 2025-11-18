@@ -3,141 +3,185 @@ const bcrypt = require('bcrypt');
 
 
 exports.RegisterUser = async(req, res) => {
-    console.log('=== REGISTRATION START ===');
-    console.log('Request body:', req.body);
-    
     try {
         const { name, email, password } = req.body;
-        console.log('Extracted:', { name, email, password: password ? `${password.length} chars` : 'MISSING' });
 
+        // Validate required fields
         if (!name || !email || !password) {
-            console.log('VALIDATION FAILED: Missing fields');
             return res.status(400).json({
                 success: false,
-                message: 'All fields required'
+                message: 'Name, email, and password are required'
             });
         }
 
-        // Additional validation
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Please enter a valid email address'
+            });
+        }
+
+        // Validate password length
         if (password.length < 6) {
-            console.log('VALIDATION FAILED: Password too short');
             return res.status(400).json({
                 success: false,
-                message: 'Password must be at least 6 characters'
+                message: 'Password must be at least 6 characters long'
             });
         }
 
-        // Check if user exists before creating
+        // Normalize email
         const normalizedEmail = email.trim().toLowerCase();
-        console.log('Checking for existing user with email:', normalizedEmail);
         
+        // Check if user already exists
         const existingUser = await User.findOne({ email: normalizedEmail });
-        console.log('Existing user found:', existingUser ? 'YES' : 'NO');
-        
         if (existingUser) {
-            console.log('User already exists with ID:', existingUser._id);
+            return res.status(400).json({
+                success: false,
+                message: 'User already exists with this email'
+            });
+        }
+        
+        // Create new user
+        const user = await User.create({ 
+            name: name.trim(), 
+            email: normalizedEmail, 
+            password: String(password)
+        });
+        
+        // Generate JWT token
+        const token = user.getJwtToken();
+
+        res.status(201).json({
+            success: true,
+            message: 'Account created successfully',
+            token,
+            user: { 
+                _id: user._id, 
+                name: user.name, 
+                email: user.email, 
+                role: user.role 
+            }
+        });
+        
+    } catch (error) {
+        // Handle duplicate key error
+        if (error.code === 11000) {
             return res.status(400).json({
                 success: false,
                 message: 'Email already exists'
             });
         }
         
-        console.log('Creating user with validated data...');
-        const user = await User.create({ 
-            name: name.trim(), 
-            email: normalizedEmail, 
-            password: String(password)
-        });
-        console.log('User created successfully:', user._id);
+        // Handle validation errors
+        if (error.name === 'ValidationError') {
+            const message = Object.values(error.errors).map(val => val.message).join(', ');
+            return res.status(400).json({
+                success: false,
+                message
+            });
+        }
         
-        const token = user.getJwtToken();
-        console.log('Token generated successfully');
-
-        res.status(201).json({
-            success: true,
-            token,
-            user: { _id: user._id, name: user.name, email: user.email, role: user.role }
-        });
-        
-    } catch (error) {
-        console.log('=== REGISTRATION ERROR ===');
-        console.log('Error message:', error.message);
-        console.log('Error code:', error.code);
-        console.log('Error name:', error.name);
-        
-        res.status(400).json({
+        res.status(500).json({
             success: false,
-            message: error.code === 11000 ? 'Email already exists' : error.message || 'Registration failed'
+            message: 'Registration failed. Please try again.'
         });
     }
 }
 
-exports.LoginUser = async(req,res) => {
+exports.LoginUser = async(req, res) => {
     try {
-        let {email, password} = req.body;
+        let { email, password } = req.body;
 
-        if(!email || !password){
+        // Validate required fields
+        if (!email || !password) {
             return res.status(400).json({
                 success: false,
-                message: 'please enter email and password'
+                message: 'Please enter email and password'
             });
         }
 
-        // Normalize email for login
+        // Normalize email
         email = email.trim().toLowerCase();
         
-        const user = await User.findOne({
-            email: { $regex: new RegExp(`^${email}$`, 'i') }
-        }).select('+password');
+        // Find user with password field
+        const user = await User.findOne({ email }).select('+password');
 
-        if(!user){
+        if (!user) {
             return res.status(401).json({
                 success: false,
-                message: 'invalid email or password'
+                message: 'Invalid email or password'
             });
         }
 
+        // Check password
         const isPasswordMatched = await bcrypt.compare(password, user.password);
 
-        if(!isPasswordMatched){
+        if (!isPasswordMatched) {
             return res.status(401).json({
                 success: false,
-                message: 'invalid email or password'
+                message: 'Invalid email or password'
             });
         }
 
+        // Generate token
         const token = user.getJwtToken();
 
+        // Cookie options
         const options = {
             httpOnly: true,
-             expires:new Date(Date.now()+process.env.COOKIE_EXPIRES_TIME*24*60*60*1000),
-        }
+            expires: new Date(Date.now() + process.env.COOKIE_EXPIRES_TIME * 24 * 60 * 60 * 1000),
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict'
+        };
+
+        // Remove password from response
+        const userResponse = {
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            createdAt: user.createdAt
+        };
 
         res.status(200)
-        .cookie('token', token, options)
-        .json({
-            success: true,
-            token,
-            user
-        });
+            .cookie('token', token, options)
+            .json({
+                success: true,
+                message: 'Login successful',
+                token,
+                user: userResponse
+            });
 
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: error.message
+            message: 'Login failed. Please try again.'
         });
     }
 }
 
 
-exports.logoutUser = async(req,res,next)=>{
-    res.cookie('token',null,{
-        expires:new Date(Date.now()),
-        httpOnly:true
-    })
+exports.logoutUser = async(req, res) => {
+    try {
+        const options = {
+            expires: new Date(Date.now()),
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict'
+        };
 
-    res.status(200).json({
-        success:true,
-        message:"Logged out successfully"
-    })
+        res.status(200)
+            .cookie('token', null, options)
+            .json({
+                success: true,
+                message: 'Logged out successfully'
+            });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Logout failed'
+        });
+    }
 };     

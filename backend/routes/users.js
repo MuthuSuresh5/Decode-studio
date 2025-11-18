@@ -70,12 +70,10 @@ router.delete('/user/:id', async (req, res) => {
 
 // Create user (admin only)
 router.post('/user', async (req, res) => {
-    console.log('=== ADMIN USER CREATION ===');
-    console.log('Request body:', req.body);
-    
     try {
         const { name, email, password, role } = req.body;
         
+        // Validate required fields
         if (!name || !email || !password) {
             return res.status(400).json({
                 success: false,
@@ -83,29 +81,44 @@ router.post('/user', async (req, res) => {
             });
         }
         
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Please enter a valid email address'
+            });
+        }
+        
+        // Validate password length
         if (password.length < 6) {
             return res.status(400).json({
                 success: false,
-                message: 'Password must be at least 6 characters'
+                message: 'Password must be at least 6 characters long'
+            });
+        }
+        
+        // Validate role
+        const validRoles = ['user', 'admin'];
+        if (role && !validRoles.includes(role)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid role. Must be user or admin'
             });
         }
         
         // Check for existing user
         const normalizedEmail = email.trim().toLowerCase();
-        console.log('Checking for existing user with email:', normalizedEmail);
-        
         const existingUser = await User.findOne({ email: normalizedEmail });
-        console.log('Existing user found:', existingUser ? 'YES' : 'NO');
         
         if (existingUser) {
-            console.log('User already exists with ID:', existingUser._id);
             return res.status(400).json({
                 success: false,
-                message: 'Email already exists'
+                message: 'User already exists with this email'
             });
         }
         
-        console.log('Creating user with role:', role || 'user');
+        // Create user
         const user = await User.create({
             name: name.trim(),
             email: normalizedEmail,
@@ -113,7 +126,6 @@ router.post('/user', async (req, res) => {
             role: role || 'user'
         });
         
-        console.log('Admin user created:', user._id);
         res.status(201).json({
             success: true,
             message: 'User created successfully',
@@ -121,17 +133,31 @@ router.post('/user', async (req, res) => {
                 _id: user._id,
                 name: user.name,
                 email: user.email,
-                role: user.role
+                role: user.role,
+                createdAt: user.createdAt
             }
         });
     } catch (error) {
-        console.log('=== ADMIN USER CREATION ERROR ===');
-        console.log('Error:', error.message);
-        console.log('Error code:', error.code);
+        // Handle duplicate key error
+        if (error.code === 11000) {
+            return res.status(400).json({
+                success: false,
+                message: 'Email already exists'
+            });
+        }
         
-        res.status(400).json({
+        // Handle validation errors
+        if (error.name === 'ValidationError') {
+            const message = Object.values(error.errors).map(val => val.message).join(', ');
+            return res.status(400).json({
+                success: false,
+                message
+            });
+        }
+        
+        res.status(500).json({
             success: false,
-            message: error.code === 11000 ? 'Email already exists' : error.message || 'Failed to create user'
+            message: 'Failed to create user. Please try again.'
         });
     }
 });
