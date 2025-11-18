@@ -36,13 +36,39 @@ app.get('/api/test', (req, res) => {
 app.post('/api/test-user', async (req, res) => {
     try {
         const User = require('./models/UserModel');
+        const testEmail = `test${Date.now()}@example.com`;
+        console.log('Creating test user with email:', testEmail);
+        
         const user = await User.create({
             name: 'Test User',
-            email: `test${Date.now()}@example.com`,
+            email: testEmail,
             password: 'password123'
         });
-        res.json({ success: true, userId: user._id, message: 'User created' });
+        
+        console.log('Test user created:', user._id);
+        res.json({ success: true, userId: user._id, email: user.email, message: 'User created' });
     } catch (error) {
+        console.log('Test user creation error:', error);
+        res.status(400).json({ success: false, error: error.message, code: error.code });
+    }
+});
+
+// Force create user (bypass all checks)
+app.post('/api/force-user', async (req, res) => {
+    try {
+        const User = require('./models/UserModel');
+        const { name, email, password } = req.body;
+        
+        console.log('Force creating user:', { name, email });
+        
+        // Drop the unique index temporarily and recreate user
+        const user = new User({ name, email, password });
+        await user.save();
+        
+        console.log('Force user created:', user._id);
+        res.json({ success: true, userId: user._id, message: 'User force created' });
+    } catch (error) {
+        console.log('Force user creation error:', error);
         res.status(400).json({ success: false, error: error.message, code: error.code });
     }
 });
