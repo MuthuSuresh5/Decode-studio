@@ -70,23 +70,53 @@ router.delete('/user/:id', async (req, res) => {
 
 // Create user (admin only)
 router.post('/user', async (req, res) => {
+    console.log('=== ADMIN USER CREATION ===');
+    console.log('Request body:', req.body);
+    
     try {
         const { name, email, password, role } = req.body;
+        
+        if (!name || !email || !password) {
+            return res.status(400).json({
+                success: false,
+                message: 'Name, email, and password are required'
+            });
+        }
+        
+        if (password.length < 6) {
+            return res.status(400).json({
+                success: false,
+                message: 'Password must be at least 6 characters'
+            });
+        }
+        
+        console.log('Creating user with role:', role || 'user');
         const user = await User.create({
-            name,
-            email,
-            password,
+            name: name.trim(),
+            email: email.trim().toLowerCase(),
+            password: String(password),
             role: role || 'user'
         });
+        
+        console.log('Admin user created:', user._id);
         res.status(201).json({
             success: true,
             message: 'User created successfully',
-            user
+            user: {
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role
+            }
         });
     } catch (error) {
-        res.status(500).json({
+        console.log('=== ADMIN USER CREATION ERROR ===');
+        console.log('Error:', error.message);
+        console.log('Error code:', error.code);
+        
+        res.status(400).json({
             success: false,
-            message: 'Failed to create user'
+            message: error.code === 11000 ? 'Email already exists' : error.message || 'Failed to create user'
         });
     }
 });
