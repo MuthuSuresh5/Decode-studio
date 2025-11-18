@@ -78,7 +78,7 @@ const Contact = () => {
                 </svg>
               </div>
               <h3>Call Us</h3>
-              <p>+91 93632 49334</p>
+              <p>+91 8610710063</p>
               <span className="contact-subtitle">Mon-Fri, 9AM-6PM IST</span>
             </div>
             

@@ -48,7 +48,7 @@ const Footer = () => {
         <div className="col">
           <h4>Contact Us</h4>
           <p className="muted">muthusuresh@gmail.com</p>
-          <p className="muted">+91 93632 49334</p>
+          <p className="muted">+91 8610710063</p>
           <p className="muted">Thiruvallur, Tamil Nadu, India</p>
         </div>
       </div>
