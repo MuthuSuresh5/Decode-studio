@@ -2,87 +2,74 @@ const User = require('../models/UserModel');
 const bcrypt = require('bcrypt');
 
 
-exports.RegisterUser = async(req,res) => {
+exports.RegisterUser = async(req, res) => {
     try {
-        console.log('Registration request body:', req.body);
-        const {name, email, password} = req.body;
+        const { name, email, password } = req.body;
 
-        console.log('Extracted fields:', { name, email, password: password ? '***' : undefined });
-
-        // Validate required fields
+        // Validate input
         if (!name || !email || !password) {
-            console.log('Missing required fields');
             return res.status(400).json({
                 success: false,
                 message: 'Please provide name, email, and password'
             });
         }
 
-        // Validate password length
         if (password.length < 6) {
-            console.log('Password too short');
             return res.status(400).json({
                 success: false,
                 message: 'Password must be at least 6 characters long'
             });
         }
 
-        // Temporarily skip duplicate check for debugging
-        console.log('Skipping duplicate check for debugging...');
-        // const existingUser = await User.findOne({ email });
-        // if (existingUser) {
-        //     console.log('User already exists');
-        //     return res.status(400).json({
-        //         success: false,
-        //         message: 'User already exists with this email'
-        //     });
-        // }
+        // Check if user exists
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({
+                success: false,
+                message: 'User already exists with this email'
+            });
+        }
 
-        console.log('Creating new user...');
-        const user = await User.create({
-            name,
-            email,
-            password
-        }); 
-
-        console.log('User created successfully, generating token...');
+        // Create user
+        const user = await User.create({ name, email, password });
         const token = user.getJwtToken();
 
-        console.log('Registration successful');
+        // Remove password from response
+        const userResponse = {
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            createdAt: user.createdAt
+        };
+
         res.status(201).json({
             success: true,
             token,
-            user
+            user: userResponse
         });
         
     } catch (error) {
-        console.error('Registration error:', error);
-        console.error('Error name:', error.name);
-        console.error('Error code:', error.code);
-        console.error('Error message:', error.message);
-        
-        // Handle validation errors
-        if (error.name === 'ValidationError') {
-            const message = Object.values(error.errors).map(val => val.message).join(', ');
-            console.log('Validation error:', message);
-            return res.status(400).json({
-                success: false,
-                message
-            });
-        }
-        
-        // Handle duplicate key error
+        // Handle duplicate key error (MongoDB)
         if (error.code === 11000) {
-            console.log('Duplicate key error');
             return res.status(400).json({
                 success: false,
                 message: 'User already exists with this email'
             });
         }
         
+        // Handle validation errors
+        if (error.name === 'ValidationError') {
+            const message = Object.values(error.errors).map(val => val.message).join(', ');
+            return res.status(400).json({
+                success: false,
+                message
+            });
+        }
+        
         res.status(500).json({
             success: false,
-            message: 'Server error during registration'
+            message: 'Registration failed. Please try again.'
         });
     }
 }

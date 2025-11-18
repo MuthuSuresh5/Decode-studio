@@ -36,4 +36,34 @@ router.get('/users', async (req, res) => {
     }
 });
 
+// Simple test registration
+router.post('/simple-register', async (req, res) => {
+    try {
+        console.log('Simple register request:', req.body);
+        const { name, email, password } = req.body;
+        
+        if (!name || !email || !password) {
+            return res.status(400).json({
+                success: false,
+                message: 'Missing fields'
+            });
+        }
+        
+        const user = new User({ name, email, password });
+        await user.save();
+        
+        res.status(201).json({
+            success: true,
+            message: 'User created successfully',
+            user: { name: user.name, email: user.email }
+        });
+    } catch (error) {
+        console.error('Simple register error:', error);
+        res.status(400).json({
+            success: false,
+            message: error.message
+        });
+    }
+});
+
 module.exports = router;
