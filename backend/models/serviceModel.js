@@ -38,6 +38,11 @@ const serviceSchema = new mongoose.Schema({
         enum: ['active', 'inactive'],
         default: 'active'
     },
+    limit:{
+        type: Number,
+        default: null,
+        min: 0
+    },
     user:{
         type: mongoose.Schema.Types.ObjectId,
     }

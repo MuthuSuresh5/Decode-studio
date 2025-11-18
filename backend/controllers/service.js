@@ -1,14 +1,27 @@
 const Service = require('../models/serviceModel');
+const Order = require('../models/orderModel');
 
 
 exports.getServices = async(req, res) => {
     try {
         const services = await Service.find().sort({ createdAt: -1 });
         
+        // Get order counts for each service
+        const servicesWithCounts = await Promise.all(services.map(async (service) => {
+            const orderCount = await Order.countDocuments({ service: service.name });
+            const isAvailable = service.limit ? orderCount < service.limit : true;
+            
+            return {
+                ...service.toObject(),
+                orderCount,
+                isAvailable
+            };
+        }));
+        
         res.status(200).json({
             success: true,
-            count: services.length,
-            services
+            count: servicesWithCounts.length,
+            services: servicesWithCounts
         });
     } catch (error) {
         res.status(500).json({
@@ -21,7 +34,7 @@ exports.getServices = async(req, res) => {
 
 exports.createService = async(req, res) => {
     try {
-        const { name, description, features, price, status } = req.body;
+        const { name, description, features, price, status, limit } = req.body;
         
         // Validate required fields
         if (!name || !description) {
@@ -63,6 +76,7 @@ exports.createService = async(req, res) => {
             features: features.map(f => f.trim()).filter(f => f.length > 0),
             price,
             status: status || 'active',
+            limit: limit ? parseInt(limit) : null,
             user: req.user.id
         };
         
@@ -134,7 +148,7 @@ exports.updateService = async(req, res) => {
             });
         }
         
-        const { name, description, features, price, status } = req.body;
+        const { name, description, features, price, status, limit } = req.body;
         
         // Validate if updating features
         if (features && (!Array.isArray(features) || features.length === 0)) {
@@ -171,6 +185,7 @@ exports.updateService = async(req, res) => {
         if (features) updateData.features = features.map(f => f.trim()).filter(f => f.length > 0);
         if (price) updateData.price = price;
         if (status) updateData.status = status;
+        if (limit !== undefined) updateData.limit = limit ? parseInt(limit) : null;
         
         const updatedService = await Service.findByIdAndUpdate(
             req.params.id,
