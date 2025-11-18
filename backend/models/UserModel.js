@@ -1,10 +1,10 @@
-const moongoose = require('mongoose');
+const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const validator = require('validator');
 const jwt =  require('jsonwebtoken');
 
 
-const userModel = new moongoose.Schema({
+const userModel = new mongoose.Schema({
     name:{
         type:String,
         required:[true,"please enter your user name"]
@@ -56,9 +56,9 @@ userModel.pre('save', async function(next){
 
 userModel.methods.getJwtToken=function(){
     return jwt.sign({id: this.id}, process.env.JWT_SECRET, {
-        expiresIn: process.env.JWT_EXPRIES_TIME
+        expiresIn: process.env.JWT_EXPIRES_TIME
     }); 
 }
 
 
-module.exports = moongoose.model('User', userModel);
+module.exports = mongoose.model('User', userModel);
