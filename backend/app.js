@@ -32,6 +32,20 @@ app.get('/api/test', (req, res) => {
     res.json({ success: true, message: 'Server is working', timestamp: new Date() });
 });
 
+// Fix database indexes
+app.post('/api/fix-indexes', async (req, res) => {
+    try {
+        const User = require('./models/UserModel');
+        
+        // Drop the problematic apiKey index
+        await User.collection.dropIndex('apiKey_1');
+        
+        res.json({ success: true, message: 'Problematic index dropped' });
+    } catch (error) {
+        res.json({ success: false, error: error.message });
+    }
+});
+
 // Debug registration
 app.post('/api/debug-register', async (req, res) => {
     console.log('=== DEBUG REGISTRATION ===');
