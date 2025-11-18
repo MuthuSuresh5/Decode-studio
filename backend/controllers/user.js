@@ -21,14 +21,14 @@ exports.RegisterUser = async(req, res) => {
             });
         }
 
-        // Check if user exists
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return res.status(400).json({
-                success: false,
-                message: 'User already exists with this email'
-            });
-        }
+        // Temporarily skip duplicate check
+        // const existingUser = await User.findOne({ email });
+        // if (existingUser) {
+        //     return res.status(400).json({
+        //         success: false,
+        //         message: 'User already exists with this email'
+        //     });
+        // }
 
         // Create user
         const user = await User.create({ name, email, password });
@@ -54,7 +54,7 @@ exports.RegisterUser = async(req, res) => {
         if (error.code === 11000) {
             return res.status(400).json({
                 success: false,
-                message: 'User already exists with this email'
+                message: 'Email already registered. Try logging in instead.'
             });
         }
         
