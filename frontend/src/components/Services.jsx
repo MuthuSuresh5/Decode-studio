@@ -18,7 +18,7 @@ const Services = () => {
         setServices(data.services.filter(service => service.status === 'active').slice(0, 4))
       }
     } catch (error) {
-      console.error('Error fetching services:', error)
+      // Silent error handling for production
     } finally {
       setLoading(false)
     }

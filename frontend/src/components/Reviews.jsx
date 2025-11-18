@@ -20,7 +20,7 @@ const Reviews = () => {
         setReviews(data.reviews.slice(0, 3))
       }
     } catch (error) {
-      console.error('Error fetching reviews:', error)
+      // Silent error handling for production
     } finally {
       setLoading(false)
     }

@@ -19,8 +19,6 @@ const AdminDashboard = ({ sidebarOpen, setSidebarOpen }) => {
   const [editItem, setEditItem] = useState(null)
 
   useEffect(() => {
-    console.log('Current user:', user)
-    console.log('Is admin:', user?.role === 'admin')
     fetchAllData()
   }, [])
 
@@ -59,7 +57,7 @@ const AdminDashboard = ({ sidebarOpen, setSidebarOpen }) => {
       const data = await response.json()
       if (data.success) setUsers(data.users)
     } catch (error) {
-      console.error('Error fetching users:', error)
+      // Silent error handling for production
     }
   }
 
@@ -71,7 +69,7 @@ const AdminDashboard = ({ sidebarOpen, setSidebarOpen }) => {
       const data = await response.json()
       if (data.success) setOrders(data.orders)
     } catch (error) {
-      console.error('Error fetching orders:', error)
+      // Silent error handling for production
     }
   }
 
@@ -81,7 +79,7 @@ const AdminDashboard = ({ sidebarOpen, setSidebarOpen }) => {
       const data = await response.json()
       if (data.success) setReviews(data.reviews)
     } catch (error) {
-      console.error('Error fetching reviews:', error)
+      // Silent error handling for production
     }
   }
 
@@ -91,7 +89,7 @@ const AdminDashboard = ({ sidebarOpen, setSidebarOpen }) => {
       const data = await response.json()
       if (data.success) setServices(data.services)
     } catch (error) {
-      console.error('Error fetching services:', error)
+      // Silent error handling for production
     }
   }
 
@@ -103,7 +101,7 @@ const AdminDashboard = ({ sidebarOpen, setSidebarOpen }) => {
       const data = await response.json()
       if (data.success) setMessages(data.contacts)
     } catch (error) {
-      console.error('Error fetching messages:', error)
+      // Silent error handling for production
     }
   }
 
@@ -131,14 +129,24 @@ const AdminDashboard = ({ sidebarOpen, setSidebarOpen }) => {
     const formData = new FormData(form)
     let data = Object.fromEntries(formData.entries())
     
-    // Handle service price structure
-    if (modalType === 'service' && data.priceFrom && data.priceTo) {
-      data.price = [{
-        from: parseInt(data.priceFrom),
-        to: parseInt(data.priceTo)
-      }]
-      delete data.priceFrom
-      delete data.priceTo
+    // Handle service data structure
+    if (modalType === 'service') {
+      // Handle price structure
+      if (data.priceFrom && data.priceTo) {
+        data.price = [{
+          from: parseInt(data.priceFrom),
+          to: parseInt(data.priceTo)
+        }]
+        delete data.priceFrom
+        delete data.priceTo
+      }
+      
+      // Handle features array
+      if (data.features) {
+        data.features = data.features.split(',').map(f => f.trim()).filter(f => f.length > 0)
+      } else {
+        data.features = []
+      }
     }
     
     try {
@@ -165,11 +173,9 @@ const AdminDashboard = ({ sidebarOpen, setSidebarOpen }) => {
         fetchAllData()
       } else {
         const errorData = await response.json()
-        console.error('Failed to save item:', errorData)
         error('Failed to save: ' + (errorData.message || 'Unknown error'))
       }
     } catch (err) {
-      console.error('Error saving item:', err)
       error('Error saving item: ' + err.message)
     }
   }
@@ -186,9 +192,6 @@ const AdminDashboard = ({ sidebarOpen, setSidebarOpen }) => {
         message: `https://decode-studio.onrender.com/api/admin/contact/${id}`
       }
       
-      console.log('Deleting', type, 'with endpoint:', endpoints[type])
-      console.log('Token:', localStorage.getItem('token'))
-      
       const response = await fetch(endpoints[type], {
         method: 'DELETE',
         headers: { 
@@ -197,18 +200,14 @@ const AdminDashboard = ({ sidebarOpen, setSidebarOpen }) => {
         }
       })
       
-      console.log('Response status:', response.status)
-      
       if (response.ok) {
         success('Item deleted successfully!')
         fetchAllData()
       } else {
         const errorData = await response.json().catch(() => ({ message: 'Unknown error' }))
-        console.error('Delete failed:', errorData)
         error('Failed to delete: ' + (errorData.message || `HTTP ${response.status}`))
       }
     } catch (err) {
-      console.error('Error deleting item:', err)
       error('Network error: ' + err.message)
     }
   }
@@ -332,7 +331,6 @@ const AdminDashboard = ({ sidebarOpen, setSidebarOpen }) => {
                         error('Failed to update user role')
                       }
                     } catch (err) {
-                      console.error('Error updating role:', err)
                       error('Network error: ' + err.message)
                     }
                   }}
@@ -772,14 +770,24 @@ const AdminDashboard = ({ sidebarOpen, setSidebarOpen }) => {
                     <label>Description</label>
                     <textarea name="description" defaultValue={editItem?.description || ''} required></textarea>
                   </div>
+                  <div className="form-group">
+                    <label>Features (comma-separated)</label>
+                    <textarea 
+                      name="features" 
+                      placeholder="e.g. Responsive Design, SEO Optimization, Fast Loading"
+                      defaultValue={editItem?.features?.join(', ') || ''} 
+                      required
+                    ></textarea>
+                    <small>Enter features separated by commas</small>
+                  </div>
                   <div className="form-row">
                     <div className="form-group">
-                      <label>Price From</label>
-                      <input type="number" name="priceFrom" defaultValue={editItem?.price?.[0]?.from || ''} />
+                      <label>Price From (₹)</label>
+                      <input type="number" name="priceFrom" defaultValue={editItem?.price?.[0]?.from || ''} required />
                     </div>
                     <div className="form-group">
-                      <label>Price To</label>
-                      <input type="number" name="priceTo" defaultValue={editItem?.price?.[0]?.to || ''} />
+                      <label>Price To (₹)</label>
+                      <input type="number" name="priceTo" defaultValue={editItem?.price?.[0]?.to || ''} required />
                     </div>
                   </div>
                   <div className="form-group">
