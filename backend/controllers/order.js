@@ -2,24 +2,53 @@ const Order = require('../models/orderModel')
 
 
 exports.newOrder = async(req,res,next) => {
-    const{phoneNumber, service, description, deadline, budget, user} = req.body;
-
     try {
+        const{phoneNumber, service, description, deadline, budget} = req.body;
+
+        // Validate required fields
+        if (!phoneNumber || !service || !description || !deadline || !budget) {
+            return res.status(400).json({
+                success: false,
+                message: 'All fields are required'
+            });
+        }
+
+        // Check if user is authenticated
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({
+                success: false,
+                message: 'User not authenticated'
+            });
+        }
+
         const order = await Order.create({
             phoneNumber,
             service,
             description,
             deadline,
             budget,
-            user:req.user.id
+            user: req.user.id
         });
+        
         res.status(201).json({
             success: true,
             order
         });
     } catch (error) {
+        console.error('Order creation error:', error);
+        
+        // Handle validation errors
+        if (error.name === 'ValidationError') {
+            const message = Object.values(error.errors).map(val => val.message).join(', ');
+            return res.status(400).json({
+                success: false,
+                message
+            });
+        }
+        
         res.status(500).json({
             success: false,
+            message: 'Failed to create order',
             error: error.message
         });
     }
