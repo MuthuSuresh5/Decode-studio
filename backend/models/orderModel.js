@@ -3,7 +3,7 @@ const User = require('./UserModel')
 
 const orderSchema = new mongoose.Schema({
     phoneNumber:{
-        type: Number,
+        type: String,
         required: true
     },
     service:{
